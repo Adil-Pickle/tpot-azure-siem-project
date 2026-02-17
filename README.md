@@ -28,3 +28,28 @@ Installed the **TPOT framework**, which includes honeypots like **Cowrie**, **Di
 
 ![TPOT Setup](screenshots/Screenshot%20(64).png)
 
+## Attack Traffic Collection
+
+### Accessing TPOT Dashboard
+The TPOT web interface was accessible via **HTTP** instead of HTTPS, as the self-signed certificate was being blocked by the browser. This allowed real-time monitoring of attack data through the built-in tools.
+
+![TPOT Dashboard Access](screenshots/Screenshot%20(68).png)
+
+---
+
+### Elastic Kibana Dashboard
+The **Kibana dashboard** provided a detailed breakdown of attacks across all honeypot services. **Cowrie** (SSH) saw the most activity with **99k attacks**, followed by **Honeytrap** with **21k**. The dashboard also visualizes attack rates, destination ports, and geographic distribution.
+
+![Kibana Dashboard](screenshots/Screenshot%20(70).png)
+
+---
+
+### Attack Map & Live Feed
+The **TPOT attack map** displayed real-time attacker locations and service targeting. The live feed breaks down **top attacking IPs** and **top countries** — the United States, Germany, and the UK were among the most frequent sources. Many IPs in the top 10 were flagged as known attackers, with details on total hits, country of origin, and last seen protocol. The **24-hour attack count** reached **21,479** at the time of these screenshots.
+
+![Attack Map](screenshots/Screenshot%20(72).png)
+
+![Top Attackers Dashboard](screenshots/Screenshot%20(80).png)
+
+![Top Attackers Detail](screenshots/Screenshot%20(81).png)
+
