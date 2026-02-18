@@ -45,11 +45,14 @@ The **Kibana dashboard** provided a detailed breakdown of attacks across all hon
 ---
 
 ### Attack Map & Live Feed
-The **TPOT attack map** displayed real-time locations of attackers and the services they targeted. The live feed breaks down **top attacking IPs** and **top countries** — the United States, Germany, and the UK were among the most frequent sources. Many IPs in the top 10 were flagged as known attackers, with details on total hits, country of origin, and last seen protocol. The **24-hour attack count** reached **21,479** at the time of these screenshots.
+The **TPOT attack map** displayed real-time attacker locations and service targeting. Each attack includes details like protocol used (SSH, FTP, Telnet) and timestamp.
 
 ![Attack Map](screenshots/Screenshot%20(72).png)
 
+The live feed breaks down **top attacking IPs** and **top countries** — the United States, Germany, and the UK were among the most frequent sources. Many IPs in the top 10 were flagged as known attackers.
+
 ![Top Attackers Dashboard](screenshots/Screenshot%20(80).png)
 
-![Top Attackers Detail](screenshots/Screenshot%20(81).png)
+The dashboard tracks total hits, source IP reputation, country of origin, and last seen protocol. The **24-hour attack count** reached **21,479** at the time of this screenshot.
 
+![Top Attackers Detail](screenshots/Screenshot%20(81).png)
