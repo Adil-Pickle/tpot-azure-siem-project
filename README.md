@@ -64,3 +64,37 @@ The live feed breaks down **top attacking IPs** and **top countries** — the Un
 The dashboard tracks total hits, source IP reputation, country of origin, and last seen protocol. The **24-hour attack count** reached **21,479** at the time of this screenshot.
 
 ![Top Attackers Detail](screenshots/Screenshot%20(81).png)
+
+## Sentinel & KQL Detection Rules
+
+### Data Ingestion Verification
+Before building detection rules, I confirmed that logs were flowing properly into Sentinel by running a **Heartbeat query**. This verified the Azure Monitor Agent was actively connected and sending data from the honeypot VM.
+
+<img width="1867" height="650" alt="Screenshot 2025-12-26 053110" src="https://github.com/user-attachments/assets/fe2c46fe-6a79-432f-8d32-d543bda29f97" />
+
+### Custom SSH Brute Force Detection Rule
+I created a custom **KQL detection rule** in Microsoft Sentinel to identify SSH brute-force attempts targeting the Cowrie honeypot. The rule runs every **10 minutes**, looking back **20 minutes** of data, and triggers an alert when it finds more than **10 login attempts** in a 10-minute window from the same source.
+
+<img width="604" height="674" alt="Screenshot 2025-12-26 233229" src="https://github.com/user-attachments/assets/ad4b5c8e-2bb1-41ed-9c13-0f43dd569cc2" />
+
+```kql
+Syslog
+| where SyslogMessage contains "cowrie" and SyslogMessage contains "login attempt"
+| summarize Count = count() by bin(TimeGenerated, 10m)
+| where Count > 10
+```
+
+### Attack Timeline Query
+This query tracks SSH brute-force attempts over time, revealing peak attack volumes. The results show **169 attacks in a single 10-minute window** — the highest observed at this point in the project.
+
+<img width="926" height="561" alt="Screenshot 2025-12-26 233336" src="https://github.com/user-attachments/assets/5e749c15-81a5-49b7-93e2-7244bcc2ec90" />
+
+```kql
+Syslog
+| where TimeGenerated > ago(24h)
+| where SyslogMessage contains "cowrie" and SyslogMessage contains "login attempt"
+| summarize Count = count() by bin(TimeGenerated, 10m), Computer
+| where Count > 10
+| order by TimeGenerated desc
+
+
