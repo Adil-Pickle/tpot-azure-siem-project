@@ -65,6 +65,7 @@ The dashboard tracks total hits, source IP reputation, country of origin, and la
 
 ![Top Attackers Detail](screenshots/Screenshot%20(81).png)
 
+---
 ## Sentinel & KQL Detection Rules
 
 ### Data Ingestion Verification
@@ -85,8 +86,7 @@ Syslog
 ```
 
 ### Attack Timeline Query
-This query tracks SSH brute-force attempts over time, revealing peak attack volumes. The results show **169 attacks in a single 10-minute window** — the highest observed at this point in the project.
-
+This query tracks SSH brute-force attempts over time, revealing peak attack volumes. The results show **169 attacks in a single 10-minute window** — the highest observed at that time in the project.
 <img width="926" height="561" alt="Screenshot 2025-12-26 233336" src="https://github.com/user-attachments/assets/5e749c15-81a5-49b7-93e2-7244bcc2ec90" />
 
 ```kql
@@ -96,5 +96,87 @@ Syslog
 | summarize Count = count() by bin(TimeGenerated, 10m), Computer
 | where Count > 10
 | order by TimeGenerated desc
+```
+
+### Top Attacking IPs
+This query extracts and counts unique source IPs from the Cowrie honeypot logs, identifying the most active attackers. The top IP alone was responsible for **2,967 attempts** during this time.
+
+<img width="861" height="429" alt="Screenshot 2025-12-26 234541" src="https://github.com/user-attachments/assets/dcb611f9-15c8-497b-8e50-4b895bc4d227" />
+
+```kql
+Syslog
+| where SyslogMessage contains "cowrie" and SyslogMessage contains "login attempt"
+| parse SyslogMessage with * "[" * "," * "," * "," IP "," * "]" *
+| summarize Attempts = count() by IP
+| order by Attempts desc
+| take 5
+```
+
+### Security Alerts Generated
+This query shows the **security alerts** triggered by my custom detection rule. The rule fired consistently during peak attack windows, with **Honeypot SSH Brute Force Detection** appearing multiple times alongside other Defender alerts.
+
+<img width="1096" height="551" alt="Screenshot 2025-12-26 235315" src="https://github.com/user-attachments/assets/8f83f483-afaa-4adf-984e-d1657feb1914" />
+
+```kql
+SecurityAlert
+| order by TimeGenerated desc
+| take 20
+| project TimeGenerated, AlertName, ProviderName
+```
+
+### Source IP Extraction
+An alternative method for extracting attacker IPs using regex. This query confirmed **3.149.59.26** as a top source with **266 attempts** during the analysis period.
+
+<img width="1438" height="621" alt="Screenshot 2025-12-27 000107" src="https://github.com/user-attachments/assets/bca07838-99cb-4d74-b9f7-af6199ba5f57" />
+
+```kql
+Syslog
+| extend SourceIP = extract(@"\b(\d{1,3}(\.\d{1,3}){3})\b", 1, SyslogMessage)
+| where isnotempty(SourceIP)
+| summarize eventCount = count() by SourceIP
+| take 10
+```
+---
+
+## Azure Resources Used
+
+The following resources were deployed and configured throughout this project:
+
+![Azure Resources](screenshots/Screenshot%202025-12-27%20000304.png)
+
+---
+
+## Key Findings
+
+The honeypot captured **over 360,000 attacks** during active monitoring.
+
+**Service breakdown**
+- Cowrie (SSH): 99,000+ attacks
+- Honeytrap: 21,000+ attacks
+- Heralding: 2,000+ attacks
+- Dionaea & Mailoney: 1,000+ combined
+
+**Attack sources**
+Traffic came from 20+ countries — top sources included the US, Germany, UK, Hong Kong, and Netherlands.
+
+**Threat intel**
+- Suricata flagged CVE-2006-236 over 4,800 times
+- Top attacker ASN: HKT Limited (AS4760) with 69,000+ attacks
+- Most active IP: 220.241.56.171 (69,510 attempts)
+
+**Detection results**
+Custom SSH brute-force rule triggered **295 alerts**, with peak activity hitting 169 attacks in 10 minutes.
+
+---
+
+## Skills Demonstrated
+
+- **Cloud:** Azure VM, NSG, Log Analytics, Data Collection Rules
+- **SIEM:** Microsoft Sentinel, KQL, threat hunting, alert generation
+- **Security Tools:** TPOT, Kibana, Suricata, attack mapping
+- **Linux:** Ubuntu, SSH, Syslog analysis
+- **Documentation:** GitHub README, technical writing
+
+
 
 
